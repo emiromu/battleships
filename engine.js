@@ -8,7 +8,7 @@ function createShip(type, position, orientation) {
 
     position is the coordinates (x,y) of the first block
     orientation is either horizontal (x) or vertical (y), and only goes (left to right, up to down)
-    assume a 10x10 grid, (0,0) in the top left corner
+    assume a 10x10 grid, (0,0) in the top left corner, gridA and gridB for the two players
     */
 
     let length = 0;
@@ -44,9 +44,44 @@ function createShip(type, position, orientation) {
             throw new Error('Ship out of y-bounds');
             return;
         }
-        blocks[i]={x: position.x+i, y:position.y+i, isHit: false}
+        if(orientation =='x'){
+            blocks[i]={x: position.x+i, y:position.y, isHit: false}
+        }
+        else if(orientation == 'y'){
+            blocks[i]={x: position.x, y:position.y+i, isHit: false}
+        }
+        
     };
 
-    return {type, length, blocks, isSunk};
+    function hitBlock(coordinates){
+        for(let i=0;i<this.length;i++){
+            if(this.blocks[i].x == coordinates.x && this.blocks[i].y == coordinates.y){
+                if(this.blocks[i].isHit == false)
+                {
+                    this.blocks[i].isHit = true;
+                    checkSunk();
+                    return true;
+                }
+                else
+                {
+                    throw new Error('Block already hit')
+                }
+            }
+        }
+        throw new Error('Block of given coordinates not found');
+    };
+
+    function checkSunk(){
+        for(let i=0; i<this.length; i++){
+            if(this.blocks[i].isHit==false)
+            {
+                return false;
+            }
+        }
+        this.isSunk = true;
+        return true;
+    };
+
+    return {type, length, blocks, isSunk, hitBlock, checkSunk};
     };
 exports.createShip = createShip;
