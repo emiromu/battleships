@@ -85,3 +85,21 @@ function createShip(type, position, orientation) {
     return {type, length, blocks, isSunk, hitBlock, checkSunk};
     };
 exports.createShip = createShip;
+
+
+function createGameboard(){
+
+        //two 10x10 grids
+        //Grid cell statuses: clear, occupied, miss, hit
+        let gridA=[];
+        let gridB=[];
+        for(let i=0; i<10; i++){
+            gridA[i]=[];
+            gridB[i]=[];
+            for(let j=0; j<10; j++){
+                gridA[i][j]={x:i,y:j,status:'clear'};
+                gridB[i][j]={x:i,y:j,status:'clear'};
+            }
+        }
+    };
+exports.createGameboard = createGameboard;
