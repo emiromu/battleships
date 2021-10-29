@@ -63,39 +63,43 @@ describe('Testing the battleship creation', () => {
 
 
 
-
+let gameboard;
   describe('Testing the gameboard creation', () => {
     // Applies only to tests in this describe block
     beforeEach(() => {
-        let gameboard = engine.createGameboard();
-      return gameboard;
+        gameboard = engine.createGameboard();
     });
+
   
     test('Empty grids', () => {
-        expect(gameboard).gridA.length
-        .toEqual(100)
-        expect(gameboard).gridB.length
-        .toEqual(100)
-        expect(gameboard).gridA[0][0].status
+        expect(gameboard.gridA.length)
+        .toEqual(10)
+        expect(gameboard.gridB.length)
+        .toEqual(10)
+        expect(gameboard.gridA[0].length)
+        .toEqual(10)
+        expect(gameboard.gridB[9].length)
+        .toEqual(10)
+        expect(gameboard.gridA[0][0].status)
         .toEqual('clear');
-        expect(gameboard).gridA[1][1].status
+        expect(gameboard.gridA[1][1].status)
         .toEqual('clear');
-        expect(gameboard).gridB[2][2].status
+        expect(gameboard.gridB[2][2].status)
         .toEqual('clear');
-        expect(gameboard).gridB[6][7].status
+        expect(gameboard.gridB[6][7].status)
         .toEqual('clear');
       });
 
     test('Placing ships', () => {
         gameboard.placeShip('Carrier',{x:0,y:0},'x','A');
         gameboard.placeShip('Destroyer',{x:6,y:6},'y','B');
-        expect(gameboard).gridA[0][0].status
+        expect(gameboard.gridA[0][0].status)
         .toEqual('occupied');
-        expect(gameboard).gridA[1][1].status
+        expect(gameboard.gridA[1][1].status)
         .toEqual('clear');
-        expect(gameboard).gridB[2][2].status
+        expect(gameboard.gridB[2][2].status)
         .toEqual('clear');
-        expect(gameboard).gridB[6][7].status
+        expect(gameboard.gridB[6][7].status)
         .toEqual('occupied');
       });
   
@@ -105,15 +109,15 @@ describe('Testing the battleship creation', () => {
 
         gameboard.attack({x:1,y:0},'A');
         gameboard.attack({x:2,y:2},'B');
-        expect(gameboard).gridA[0][0].status
+        expect(gameboard.gridA[0][0].status)
         .toEqual('occupied');
-        expect(gameboard).gridA[1][1].status
+        expect(gameboard.gridA[1][1].status)
         .toEqual('clear');
-        expect(gameboard).gridA[1][0].status
+        expect(gameboard.gridA[1][0].status)
         .toEqual('hit');
-        expect(gameboard).gridB[5][3].status
+        expect(gameboard.gridB[5][3].status)
         .toEqual('clear');
-        expect(gameboard).gridB[2][2].status
+        expect(gameboard.gridB[2][2].status)
         .toEqual('miss');
     
         expect(() => gameboard.attack({x:50,y:50},'A'))

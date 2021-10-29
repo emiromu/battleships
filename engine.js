@@ -101,5 +101,6 @@ function createGameboard(){
                 gridB[i][j]={x:i,y:j,status:'clear'};
             }
         }
+        return{gridA, gridB};
     };
 exports.createGameboard = createGameboard;
