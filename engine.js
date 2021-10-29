@@ -101,6 +101,104 @@ function createGameboard(){
                 gridB[i][j]={x:i,y:j,status:'clear'};
             }
         }
-        return{gridA, gridB};
+
+        let fleetA=[];
+        let fleetB=[];
+
+        function addShip(type,position,orientation,grid){
+            if(grid=='A'){
+                this.fleetA.push(createShip(type,position,orientation));
+                //scan through the last ship pushed and update the grid status
+                for(let i=0;i<this.fleetA[this.fleetA.length -1].blocks.length;i++){
+                    this.gridA[this.fleetA[this.fleetA.length -1].blocks[i].x][this.fleetA[this.fleetA.length -1].blocks[i].y]
+                    .status='occupied';
+                }
+            }
+            else if(grid=='B'){
+                this.fleetB.push(createShip(type,position,orientation));
+                //scan through the last ship pushed and update the grid status
+                for(let i=0;i<this.fleetB[this.fleetB.length -1].blocks.length;i++){
+                    this.gridB[this.fleetB[this.fleetB.length -1].blocks[i].x][this.fleetB[this.fleetB.length -1].blocks[i].y]
+                    .status='occupied';
+                }
+            }
+        };
+
+        function attack(position,grid){
+            if(position.x<0 || position.x>9 || position.y<0 || position.y>9 ){
+                throw new Error('Out of bounds');
+            }
+            if(grid=='A'){
+                switch(this.gridA[position.x][position.y].status){
+                    case 'occupied':
+                        for(let i=0; i<this.fleetA.length; i++){
+                            for(let j=0; j<this.fleetA[i].blocks.length; j++){
+                                if(this.fleetA[i].blocks[j].x == position.x && this.fleetA[i].blocks[j].y == position.y){
+                                    this.fleetA[i].hitBlock(position);
+                                    this.gridA[position.x][position.y].status='hit';
+                                }
+                            }
+                        }
+                        break;
+                    case 'clear':
+                        this.gridA[position.x][position.y].status='miss';
+                        break;
+                    case 'hit':
+                        throw new Error('Duplicate attack on coordinates');
+                    case 'miss':
+                        throw new Error('Duplicate attack on coordinates');
+                }
+            }
+            else if(grid=='B'){
+                switch(this.gridB[position.x][position.y].status){
+                    case 'occupied':
+                        for(let i=0; i<this.fleetB.length; i++){
+                            for(let j=0; j<this.fleetB[i].blocks.length; j++){
+                                if(this.fleetB[i].blocks[j].x == position.x && this.fleetB[i].blocks[j].y == position.y){
+                                    this.fleetB[i].hitBlock(position);
+                                    this.gridB[position.x][position.y].status='hit';
+                                }
+                            }
+                        }
+                        break;
+                    case 'clear':
+                        this.gridB[position.x][position.y].status='miss';
+                        break;
+                    case 'hit':
+                        throw new Error('Duplicate attack on coordinates');
+                    case 'miss':
+                        throw new Error('Duplicate attack on coordinates');
+                }
+
+            }
+        };
+
+        function checkVictory(){
+            //return undecided, A, or B
+            if(fleetA.length != fleetB.length){
+                throw new Error(`Fleets don't have the same number of ships`);
+            }
+
+            //Status=0 : all ships sunk, status=1 : at least one ship not sunk
+            let statusA = 0;
+            let statusB = 0;
+            for(let i=0; i<fleetA.length; i++){
+                if(fleetA[i].isSunk == false){
+                    statusA=1;
+                }
+                if(fleetB[i].isSunk == false){
+                    statusB=1;
+                }
+            }
+
+            if(statusA==1 && statusB==1)return 'undecided';
+            if(statusA==1 && statusB==0)return 'A';
+            if(statusA==0 && statusB==1)return 'B';
+            if(statusA==0 && statusB==0)throw new Error('Both fleets fully sunk');
+            throw new Error('Unexpected exception');
+        };
+
+        
+        return{gridA, gridB, fleetA, fleetB, addShip, attack, checkVictory};
     };
 exports.createGameboard = createGameboard;

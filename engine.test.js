@@ -91,8 +91,17 @@ let gameboard;
       });
 
     test('Placing ships', () => {
-        gameboard.placeShip('Carrier',{x:0,y:0},'x','A');
-        gameboard.placeShip('Destroyer',{x:6,y:6},'y','B');
+        expect(gameboard.fleetA.length)
+        .toEqual(0);
+        expect(gameboard.fleetB.length)
+        .toEqual(0);
+        gameboard.addShip('Carrier',{x:0,y:0},'x','A');
+        gameboard.addShip('Destroyer',{x:6,y:6},'y','B');
+        expect(gameboard.fleetA.length)
+        .toEqual(1);
+        expect(gameboard.fleetB.length)
+        .toEqual(1);
+
         expect(gameboard.gridA[0][0].status)
         .toEqual('occupied');
         expect(gameboard.gridA[1][1].status)
@@ -104,8 +113,8 @@ let gameboard;
       });
   
     test('Attacking', () => {
-        gameboard.placeShip('Carrier',{x:0,y:0},'x','A');
-        gameboard.placeShip('Destroyer',{x:6,y:6},'y','B');
+        gameboard.addShip('Carrier',{x:0,y:0},'x','A');
+        gameboard.addShip('Destroyer',{x:6,y:6},'y','B');
 
         gameboard.attack({x:1,y:0},'A');
         gameboard.attack({x:2,y:2},'B');
@@ -122,15 +131,28 @@ let gameboard;
     
         expect(() => gameboard.attack({x:50,y:50},'A'))
         .toThrow('Out of bounds');
+        expect(() => gameboard.attack({x:1,y:0},'A'))
+        .toThrow('Duplicate attack on coordinates');
+        gameboard.attack({x:9,y:3},'B');
+        expect(() => gameboard.attack({x:9,y:3},'B'))
+        .toThrow('Duplicate attack on coordinates');
     });
 
     test('Victory check', () => {
-        expect(() => gameboard.checkVictory())
-        .toEqual('undecided');
+        gameboard.addShip('Carrier',{x:0,y:0},'x','A');
+        gameboard.addShip('Destroyer',{x:6,y:6},'y','B');
+        expect(() => gameboard.checkVictory().toEqual('undecided'));
+        
         gameboard.attack({x:6,y:6},'B');
         gameboard.attack({x:6,y:7},'B');
-        expect(() => gameboard.checkVictory())
-        .toEqual('A');
+        expect(() => gameboard.checkVictory().toEqual('A'));
+
+        gameboard.attack({x:0,y:0},'A');
+        gameboard.attack({x:1,y:0},'A');
+        gameboard.attack({x:2,y:0},'A');
+        gameboard.attack({x:3,y:0},'A');
+        gameboard.attack({x:4,y:0},'A');
+        expect(() => gameboard.checkVictory().toThrow('Both fleets fully sunk'));
     });
   });
 
