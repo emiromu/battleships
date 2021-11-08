@@ -70,7 +70,6 @@ let gameboard;
         gameboard = engine.createGameboard();
     });
 
-  
     test('Empty grids', () => {
         expect(gameboard.gridA.length)
         .toEqual(10)
@@ -156,5 +155,67 @@ let gameboard;
     });
   });
 
+  describe('Testing the players (human + AI)', () => {
+    
+    beforeEach(() => {
+        return;
+    });
 
+    test('Creating human player Bob on side A', () => {
+        let player = engine.createPlayer('human','Bob','A');
+
+        expect(player.getKind())
+        .toEqual('human');
+        expect(player.getName())
+        .toEqual('Bob');
+        expect(player.getSide())
+        .toEqual('A');
+    });
+
+    test('Creating computer player HAL on side B', () => {
+        let player = engine.createPlayer('computer','HAL','B');
+
+        expect(player.getKind())
+        .toEqual('computer');
+        expect(player.getName())
+        .toEqual('HAL');
+        expect(player.getSide())
+        .toEqual('B');
+    });
+
+    test('Testing AI : pick valid target', () => {
+        gameboard = engine.createGameboard();
+        let computer = engine.createPlayer('computer','HAL','B');
+
+        //Fill grid A with hits
+        for(let i=0;i<10;i++){
+            for(let j=0;j<10;j++){
+                gameboard.gridA[i][j].status='hit';
+            }
+        }
+        //testing 1 clear cell at 5*5
+        gameboard.gridA[5][5].status='clear';
+        expect(computer.lockTarget(gameboard,'A'))
+        .toEqual({x:5,y:5});
+
+        //testing 1 occupied cell at 3*4
+        gameboard.gridA[5][5].status='miss';
+        gameboard.gridA[3][4].status='occupied';
+        expect(computer.lockTarget(gameboard,'A'))
+        .toEqual({x:3,y:4});
+    });
+
+    test('Testing AI : attack designated target', () => {
+        gameboard = engine.createGameboard();
+        let computer = engine.createPlayer('computer','HAL','B');
+
+        expect(gameboard.gridA[0][0].status)
+        .toEqual('clear');
+        computer.playTurn(gameboard,'A',{x:0,y:0});
+        expect(gameboard.gridA[0][0].status)
+        .toEqual('miss');
+
+    });
+
+  });
 

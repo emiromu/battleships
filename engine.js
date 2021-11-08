@@ -202,3 +202,50 @@ function createGameboard(){
         return{gridA, gridB, fleetA, fleetB, addShip, attack, checkVictory};
     };
 exports.createGameboard = createGameboard;
+
+function createPlayer(kind,name,side){
+        return{
+            getKind(){
+                return kind;
+            },
+            getName(){
+                return name;
+            },
+            getSide(){
+                return side;
+            },
+            //AI FUNCTIONS
+            randomCoordinates(){
+                let x = Math.floor(Math.random() * 10);
+                let y = Math.floor(Math.random() * 10);
+                return {x,y};
+            },
+            lockTarget(gameboard,targetGrid){
+                let targetCoord = this.randomCoordinates();
+                //Keep picking at random if the target cell has already been attacked
+                if(targetGrid=='A'){
+                    while(gameboard.gridA[targetCoord.x][targetCoord.y].status=='miss' 
+                    || gameboard.gridA[targetCoord.x][targetCoord.y].status=='hit')
+                    {
+                        targetCoord = this.randomCoordinates();
+                    }
+                }else if(targetGrid=='B'){
+                    while(gameboard.gridB[targetCoord.x][targetCoord.y].status=='miss' 
+                    || gameboard.gridB[targetCoord.x][targetCoord.y].status=='hit')
+                    {
+                        targetCoord = this.randomCoordinates();
+                    }
+                }
+                return targetCoord;
+            },
+            playTurn(gameboard,targetGrid,targetCoord){
+                //attack at target coordinates, if coordinates undefined, pick at random
+                if(targetCoord==undefined)targetCoord=this.lockTarget(gameboard,targetGrid);
+                console.log(`Attacking ${targetCoord}`);
+                gameboard.attack(targetCoord,targetGrid);
+            }
+
+        };
+    };
+exports.createPlayer = createPlayer;
+
