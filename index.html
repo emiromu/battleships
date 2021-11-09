@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<header>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" type="text/css" href="style.css" media="screen">
+</header>
+<body>
+    <div id="main" class="main">
+        <h3>Battleships by emiromu</h3>
+        <h5>(The AI is not actually intelligent: it plays randomly)</h5>
+        <div id="topMenu" class="topMenu">
+            <br>
+            <div id="gameModeSelect">Game mode : 
+                <input type="radio" id="radioA2" name="gameMode" checked> Player vs AI &nbsp; &nbsp;
+            </div>
+            <div id="pveSelect">
+            </div>
+            <br>
+            <button id="startGame">Start</button>
+            <br>
+        </div>
+        <div id="gameArea" class="gameArea">
+            <div id="referee">
+                Press "Start"
+            </div>
+            <br>
+            <div id="displayBoard">
+                <div id="sideA" class="col">Player
+                    <br>
+                </div>
+                <div id="sideB" class="col">AI
+                    <br>
+                </div>
+            </div>
+        </div>
+        <div id="footer" class="footer">Created by Emilien Romulus (emiromu : <a href="https://github.com/emiromu/hayashi-neko-restaurant">github</a> )</div>
+    </div>
+</body>    
+<script src="engine.js"></script>
+</html>

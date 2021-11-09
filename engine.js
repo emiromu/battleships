@@ -84,8 +84,6 @@ function createShip(type, position, orientation) {
 
     return {type, length, blocks, isSunk, hitBlock, checkSunk};
     };
-exports.createShip = createShip;
-
 
 function createGameboard(){
 
@@ -201,7 +199,6 @@ function createGameboard(){
         
         return{gridA, gridB, fleetA, fleetB, addShip, attack, checkVictory};
     };
-exports.createGameboard = createGameboard;
 
 function createPlayer(kind,name,side){
         return{
@@ -247,5 +244,98 @@ function createPlayer(kind,name,side){
 
         };
     };
-exports.createPlayer = createPlayer;
 
+function renderGrids(gameboard){
+    console.log('calling renderGrids');
+    for(let i=0;i<10;i++){
+        for(let j=0;j<10;j++){
+            switch(gameboard.gridA[i][j].status){
+                case 'clear': document.querySelector(`#sideACell${i}-${j}`).style.backgroundColor = 'white';
+                    break;
+                case 'occupied':document.querySelector(`#sideACell${i}-${j}`).style.backgroundColor = "blue";
+                    break;
+                case 'hit':document.querySelector(`#sideACell${i}-${j}`).style.backgroundColor = "orange";
+                    break;
+                case 'miss':document.querySelector(`#sideACell${i}-${j}`).style.backgroundColor = "gray";
+                    break;
+                default:document.querySelector(`#sideACell${i}-${j}`).style.backgroundColor = "white";
+                    break;
+            }
+
+            switch(gameboard.gridB[i][j].status){
+                case 'clear': document.querySelector(`#sideBCell${i}-${j}`).style.backgroundColor = 'white';
+                    break;
+                case 'occupied':document.querySelector(`#sideBCell${i}-${j}`).style.backgroundColor = "white";
+                    break;
+                case 'hit':document.querySelector(`#sideBCell${i}-${j}`).style.backgroundColor = "orange";
+                    break;
+                case 'miss':document.querySelector(`#sideBCell${i}-${j}`).style.backgroundColor = "gray";
+                    break;
+                default:document.querySelector(`#sideBCell${i}-${j}`).style.backgroundColor = "white";
+                    break;
+            }
+        }
+    }
+};
+
+const gameboard = createGameboard();
+let playerA = createPlayer('human','Human','A');
+let playerB = createPlayer('computer','Computer','B');
+
+    /**INIT DOM GRIDS */
+const sideA = document.querySelector('#sideA');
+const sideB = document.querySelector('#sideB');
+
+let sideArows = [];
+let sideBrows = [];
+let sideACells = [];
+let sideBCells = [];
+
+for(let i=0;i<10;i++){
+    sideArows[i]=document.createElement('div');
+    sideArows[i].setAttribute('id',`sideArow${i}`);
+    sideArows[i].classList.add('gridRow');   
+    if(i==0)sideArows[i].classList.add('gridRowTop');  
+    if(i==9)sideArows[i].classList.add('gridRowBottom');  
+    document.querySelector('#sideA').appendChild(sideArows[i]);
+
+    sideBrows[i]=document.createElement('div');
+    sideBrows[i].setAttribute('id',`sideBrow${i}`);
+    sideBrows[i].classList.add('gridRow');  
+    if(i==0)sideBrows[i].classList.add('gridRowTop');  
+    if(i==9)sideBrows[i].classList.add('gridRowBottom');  
+    document.querySelector('#sideB').appendChild(sideBrows[i]);
+
+    sideACells[i] = [];
+    sideBCells[i] = [];
+    for(let j=0;j<10;j++){
+        sideACells[i][j]=document.createElement('div');
+        sideACells[i][j].setAttribute('id',`sideACell${i}-${j}`);
+        sideACells[i][j].classList.add('gridCell');
+        sideArows[i].appendChild(sideACells[i][j]);
+
+        sideBCells[i][j]=document.createElement('div');
+        sideBCells[i][j].setAttribute('id',`sideBCell${i}-${j}`);
+        sideBCells[i][j].classList.add('gridCell');
+        sideBrows[i].appendChild(sideBCells[i][j]);
+    }
+}
+
+
+const startBtn = document.querySelector('#startGame');
+startBtn.addEventListener('click', function(e){
+    console.log('start')
+    renderGrids(gameboard);
+
+    while(gameboard.checkVictory=='undecided') //other states are A or B
+    {
+        
+
+    }
+});
+
+
+/**Exports for Jest */
+exports.createShip = createShip;
+exports.createGameboard = createGameboard;
+exports.createPlayer = createPlayer;
