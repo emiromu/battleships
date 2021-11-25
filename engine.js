@@ -33,22 +33,22 @@ function createShip(type, position, orientation) {
 
     for(let i=0; i<length; i++){
         /**position + orientation validity test */
-        if(orientation == 'x' && (position.x + i >10)){
+        if(orientation == 'x' && (parseInt(position.x) + parseInt(i) >10)){
             //x overflow
             throw new Error('Ship out of x-bounds');
             return;
         }
-        if(orientation == 'y' && (position.y + i >10)){
+        if(orientation == 'y' && (parseInt(position.y) + parseInt(i) >10)){
             //y overflow
             //throw 'Ship out of y-bounds';
             throw new Error('Ship out of y-bounds');
             return;
         }
         if(orientation =='x'){
-            blocks[i]={x: position.x+i, y:position.y, isHit: false}
+            blocks[i]={x: parseInt(position.x)+parseInt(i), y:parseInt(position.y), isHit: false}
         }
         else if(orientation == 'y'){
-            blocks[i]={x: position.x, y:position.y+i, isHit: false}
+            blocks[i]={x: parseInt(position.x), y:parseInt(position.y)+parseInt(i), isHit: false}
         }
         
     };
@@ -59,7 +59,7 @@ function createShip(type, position, orientation) {
                 if(this.blocks[i].isHit == false)
                 {
                     this.blocks[i].isHit = true;
-                    checkSunk();
+                    this.checkSunk();
                     return true;
                 }
                 else
@@ -103,7 +103,69 @@ function createGameboard(){
         let fleetA=[];
         let fleetB=[];
 
+        function clear(){
+            this.fleetA=[];
+            this.fleetB=[];
+
+            for(let i=0; i<10; i++){
+                for(let j=0; j<10; j++){
+                    this.gridA[i][j].status='clear';
+                    this.gridB[i][j].status='clear';
+                }
+            }
+            return true;
+        }
+
+        function checkAvailableSpace(type,position,orientation,grid){
+            let shipLength=0;
+            switch(type){
+                case 'Carrier':shipLength=5;
+                    break;
+                case 'Battleship':shipLength=4;
+                    break;
+                case 'Cruiser':shipLength=3;
+                    break;
+                case 'Submarine':shipLength=3;
+                    break;
+                case 'Destroyer':shipLength=2;
+                    break;
+            }
+            if(grid=='A' && orientation=='x'){
+                for(let i=0;i<shipLength;i++){
+                    if(this.gridA[parseInt(position.x)+i][parseInt(position.y)].status != 'clear'){
+                        return false;
+                    }
+                }
+            }
+            else if(grid=='A' && orientation=='y'){
+                for(let i=0;i<shipLength;i++){
+                    if(this.gridA[parseInt(position.x)][parseInt(position.y)+i].status != 'clear'){
+                        return false;
+                    }
+                }
+            }
+            else if(grid=='B' && orientation=='x'){
+                for(let i=0;i<shipLength;i++){
+                    if(this.gridB[parseInt(position.x)+i][parseInt(position.y)].status != 'clear'){
+                        return false;
+                    }
+                }
+            }
+            else if(grid=='B' && orientation=='y'){
+                for(let i=0;i<shipLength;i++){
+                    if(this.gridB[parseInt(position.x)][parseInt(position.y)+i].status != 'clear'){
+                        return false;
+                    }
+                }
+            }
+            return true;
+        };
+
         function addShip(type,position,orientation,grid){
+
+            if(this.checkAvailableSpace(type,position,orientation,grid)==false){
+                throw new Error('Position already occupied');
+            }
             if(grid=='A'){
                 this.fleetA.push(createShip(type,position,orientation));
                 //scan through the last ship pushed and update the grid status
@@ -173,18 +235,18 @@ function createGameboard(){
 
         function checkVictory(){
             //return undecided, A, or B
-            if(fleetA.length != fleetB.length){
+            if(this.fleetA.length != this.fleetB.length){
                 throw new Error(`Fleets don't have the same number of ships`);
             }
 
             //Status=0 : all ships sunk, status=1 : at least one ship not sunk
             let statusA = 0;
             let statusB = 0;
-            for(let i=0; i<fleetA.length; i++){
-                if(fleetA[i].isSunk == false){
+            for(let i=0; i<this.fleetA.length; i++){
+                if(this.fleetA[i].isSunk == false){
                     statusA=1;
                 }
-                if(fleetB[i].isSunk == false){
+                if(this.fleetB[i].isSunk == false){
                     statusB=1;
                 }
             }
@@ -197,7 +259,7 @@ function createGameboard(){
         };
 
         
-        return{gridA, gridB, fleetA, fleetB, addShip, attack, checkVictory};
+        return{gridA, gridB, fleetA, fleetB, addShip, attack, checkVictory, checkAvailableSpace, clear};
     };
 
 function createPlayer(kind,name,side){
@@ -238,7 +300,6 @@ function createPlayer(kind,name,side){
             playTurn(gameboard,targetGrid,targetCoord){
                 //attack at target coordinates, if coordinates undefined, pick at random
                 if(targetCoord==undefined)targetCoord=this.lockTarget(gameboard,targetGrid);
-                console.log(`Attacking ${targetCoord}`);
                 gameboard.attack(targetCoord,targetGrid);
             }
 
@@ -246,7 +307,6 @@ function createPlayer(kind,name,side){
     };
 
 function renderGrids(gameboard){
-    console.log('calling renderGrids');
     for(let i=0;i<10;i++){
         for(let j=0;j<10;j++){
             switch(gameboard.gridA[i][j].status){
@@ -278,64 +338,6 @@ function renderGrids(gameboard){
     }
 };
 
-const gameboard = createGameboard();
-let playerA = createPlayer('human','Human','A');
-let playerB = createPlayer('computer','Computer','B');
-
-    /**INIT DOM GRIDS */
-const sideA = document.querySelector('#sideA');
-const sideB = document.querySelector('#sideB');
-
-let sideArows = [];
-let sideBrows = [];
-let sideACells = [];
-let sideBCells = [];
-
-for(let i=0;i<10;i++){
-    sideArows[i]=document.createElement('div');
-    sideArows[i].setAttribute('id',`sideArow${i}`);
-    sideArows[i].classList.add('gridRow');   
-    if(i==0)sideArows[i].classList.add('gridRowTop');  
-    if(i==9)sideArows[i].classList.add('gridRowBottom');  
-    document.querySelector('#sideA').appendChild(sideArows[i]);
-
-    sideBrows[i]=document.createElement('div');
-    sideBrows[i].setAttribute('id',`sideBrow${i}`);
-    sideBrows[i].classList.add('gridRow');  
-    if(i==0)sideBrows[i].classList.add('gridRowTop');  
-    if(i==9)sideBrows[i].classList.add('gridRowBottom');  
-    document.querySelector('#sideB').appendChild(sideBrows[i]);
-
-    sideACells[i] = [];
-    sideBCells[i] = [];
-    for(let j=0;j<10;j++){
-        sideACells[i][j]=document.createElement('div');
-        sideACells[i][j].setAttribute('id',`sideACell${i}-${j}`);
-        sideACells[i][j].classList.add('gridCell');
-        sideArows[i].appendChild(sideACells[i][j]);
-
-        sideBCells[i][j]=document.createElement('div');
-        sideBCells[i][j].setAttribute('id',`sideBCell${i}-${j}`);
-        sideBCells[i][j].classList.add('gridCell');
-        sideBrows[i].appendChild(sideBCells[i][j]);
-    }
-}
-
-
-const startBtn = document.querySelector('#startGame');
-startBtn.addEventListener('click', function(e){
-    console.log('start')
-    renderGrids(gameboard);
-
-    while(gameboard.checkVictory=='undecided') //other states are A or B
-    {
-        
-
-    }
-});
-
-
-/**Exports for Jest */
 exports.createShip = createShip;
 exports.createGameboard = createGameboard;
 exports.createPlayer = createPlayer;

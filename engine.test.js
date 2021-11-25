@@ -1,6 +1,5 @@
 const engine = require('./engine');
 
-
 describe('Testing the battleship creation', () => {
     // Applies only to tests in this describe block
     beforeEach(() => {
@@ -61,8 +60,6 @@ describe('Testing the battleship creation', () => {
       });
 });
 
-
-
 let gameboard;
   describe('Testing the gameboard creation', () => {
     // Applies only to tests in this describe block
@@ -94,7 +91,11 @@ let gameboard;
         .toEqual(0);
         expect(gameboard.fleetB.length)
         .toEqual(0);
+        expect(gameboard.checkAvailableSpace('Carrier',{x:0,y:0},'x','A'))
+        .toEqual(true);
         gameboard.addShip('Carrier',{x:0,y:0},'x','A');
+        expect(gameboard.checkAvailableSpace('Carrier',{x:0,y:0},'y','A'))
+        .toEqual(false);
         gameboard.addShip('Destroyer',{x:6,y:6},'y','B');
         expect(gameboard.fleetA.length)
         .toEqual(1);
@@ -109,6 +110,8 @@ let gameboard;
         .toEqual('clear');
         expect(gameboard.gridB[6][7].status)
         .toEqual('occupied');
+        expect(() => gameboard.addShip('Carrier',{x:0,y:0},'y','A'))
+        .toThrow('Position already occupied');
       });
   
     test('Attacking', () => {
