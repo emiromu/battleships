@@ -135,13 +135,6 @@ body{
     flex-direction: row;
     width:70%;
     height:10%;
-    border: 0.05em solid black;
-}
-.gridRowTop{
-    border-top:0.1em solid black;
-}
-.gridRowBottom{
-    border-bottom:0.1em solid black;
 }
 
 .gridCell{
@@ -150,6 +143,15 @@ body{
     width:10%;
     height:100%;
     border: 0.05em solid black;
-    border-top-width: 0;
-    border-bottom-width: 0;
+}
+
+.legendCell{
+    display: flex;
+    flex-direction: row;
+    width:10%;
+    height:100%;
+    color: black;
+    font-size:x-small;
+    justify-content: center;
+    align-items: center;
 }

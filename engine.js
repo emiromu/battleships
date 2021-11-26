@@ -45,10 +45,10 @@ function createShip(type, position, orientation) {
             return;
         }
         if(orientation =='x'){
-            blocks[i]={x: parseInt(position.x)+parseInt(i), y:parseInt(position.y), isHit: false}
+            blocks[i]={x: parseInt(position.x)+parseInt(i), y:parseInt(position.y), isHit: false, parentLength: length, parentOrientation: orientation}
         }
         else if(orientation == 'y'){
-            blocks[i]={x: parseInt(position.x), y:parseInt(position.y)+parseInt(i), isHit: false}
+            blocks[i]={x: parseInt(position.x), y:parseInt(position.y)+parseInt(i), isHit: false, parentLength: length, parentOrientation: orientation}
         }
         
     };
@@ -59,7 +59,7 @@ function createShip(type, position, orientation) {
                 if(this.blocks[i].isHit == false)
                 {
                     this.blocks[i].isHit = true;
-                    this.checkSunk();
+                    checkSunk();
                     return true;
                 }
                 else
@@ -104,8 +104,11 @@ function createGameboard(){
         let fleetB=[];
 
         function clear(){
-            this.fleetA=[];
             this.fleetB=[];
+            for(let i=0;i<5;i++){
+                this.fleetA.pop();
+                this.fleetA.pop();
+            }
 
             for(let i=0; i<10; i++){
                 for(let j=0; j<10; j++){
@@ -161,6 +164,27 @@ function createGameboard(){
             return true;
         };
 
+        function sunkShipGrid(){
+            //fleetA
+            for(let i=0; i<this.fleetA.length; i++){
+                if(this.fleetA[i].isSunk){
+                    for(let j=0; j<this.fleetA[i].blocks.length;j++){
+                        this.gridA[this.fleetA[i].blocks[j].x][this.fleetA[i].blocks[j].y].status='sunk';
+                    }
+                }
+            }
+            //fleetB
+            for(let i=0; i<this.fleetB.length; i++){
+                if(this.fleetB[i].isSunk){
+                    for(let j=0; j<this.fleetB[i].blocks.length;j++){
+                        this.gridB[this.fleetB[i].blocks[j].x][this.fleetB[i].blocks[j].y].status='sunk';
+                    }
+                }
+            }
+
+        return true;
+        };
+
         function addShip(type,position,orientation,grid){
 
             if(this.checkAvailableSpace(type,position,orientation,grid)==false){
@@ -196,6 +220,10 @@ function createGameboard(){
                                 if(this.fleetA[i].blocks[j].x == position.x && this.fleetA[i].blocks[j].y == position.y){
                                     this.fleetA[i].hitBlock(position);
                                     this.gridA[position.x][position.y].status='hit';
+                                    if(this.fleetA[i].checkSunk()){
+                                        //alert(`You have sunk my ${this.fleetA[i].type}!`)
+                                        this.sunkShipGrid();
+                                    }
                                 }
                             }
                         }
@@ -207,6 +235,8 @@ function createGameboard(){
                         throw new Error('Duplicate attack on coordinates');
                     case 'miss':
                         throw new Error('Duplicate attack on coordinates');
+                    case 'sunk':
+                        throw new Error('Duplicate attack on coordinates');
                 }
             }
             else if(grid=='B'){
@@ -217,6 +247,10 @@ function createGameboard(){
                                 if(this.fleetB[i].blocks[j].x == position.x && this.fleetB[i].blocks[j].y == position.y){
                                     this.fleetB[i].hitBlock(position);
                                     this.gridB[position.x][position.y].status='hit';
+                                    if(this.fleetB[i].checkSunk()){
+                                        //alert(`You have sunk my ${this.fleetB[i].type}!`)
+                                        this.sunkShipGrid();
+                                    }
                                 }
                             }
                         }
@@ -227,6 +261,8 @@ function createGameboard(){
                     case 'hit':
                         throw new Error('Duplicate attack on coordinates');
                     case 'miss':
+                        throw new Error('Duplicate attack on coordinates');
+                    case 'sunk':
                         throw new Error('Duplicate attack on coordinates');
                 }
 
@@ -259,7 +295,7 @@ function createGameboard(){
         };
 
         
-        return{gridA, gridB, fleetA, fleetB, addShip, attack, checkVictory, checkAvailableSpace, clear};
+        return{gridA, gridB, fleetA, fleetB, addShip, attack, checkVictory, checkAvailableSpace, clear, sunkShipGrid};
     };
 
 function createPlayer(kind,name,side){
@@ -307,9 +343,9 @@ function createPlayer(kind,name,side){
     };
 
 function renderGrids(gameboard){
-    for(let i=0;i<10;i++){
-        for(let j=0;j<10;j++){
-            switch(gameboard.gridA[i][j].status){
+    for(let i=1;i<11;i++){
+        for(let j=1;j<11;j++){
+            switch(gameboard.gridA[parseInt(i)-parseInt(1)][parseInt(j)-parseInt(1)].status){
                 case 'clear': document.querySelector(`#sideACell${i}-${j}`).style.backgroundColor = 'white';
                     break;
                 case 'occupied':document.querySelector(`#sideACell${i}-${j}`).style.backgroundColor = "blue";
@@ -318,11 +354,13 @@ function renderGrids(gameboard){
                     break;
                 case 'miss':document.querySelector(`#sideACell${i}-${j}`).style.backgroundColor = "gray";
                     break;
+                case 'sunk':document.querySelector(`#sideACell${i}-${j}`).style.backgroundColor = "red";
+                    break;
                 default:document.querySelector(`#sideACell${i}-${j}`).style.backgroundColor = "white";
                     break;
             }
 
-            switch(gameboard.gridB[i][j].status){
+            switch(gameboard.gridB[parseInt(i)-parseInt(1)][parseInt(j)-parseInt(1)].status){
                 case 'clear': document.querySelector(`#sideBCell${i}-${j}`).style.backgroundColor = 'white';
                     break;
                 case 'occupied':document.querySelector(`#sideBCell${i}-${j}`).style.backgroundColor = "white";
@@ -330,6 +368,8 @@ function renderGrids(gameboard){
                 case 'hit':document.querySelector(`#sideBCell${i}-${j}`).style.backgroundColor = "orange";
                     break;
                 case 'miss':document.querySelector(`#sideBCell${i}-${j}`).style.backgroundColor = "gray";
+                    break;
+                case 'sunk':document.querySelector(`#sideBCell${i}-${j}`).style.backgroundColor = "red";
                     break;
                 default:document.querySelector(`#sideBCell${i}-${j}`).style.backgroundColor = "white";
                     break;

@@ -13,7 +13,13 @@ describe('Testing the battleship creation', () => {
         expect(testShip.length)
         .toEqual(5);
         expect(testShip.blocks)
-        .toEqual([{isHit:false,x:0,y:0},{isHit:false,x:1,y:0},{isHit:false,x:2,y:0},{isHit:false,x:3,y:0},{isHit:false,x:4,y:0}]);
+        .toEqual([
+            {isHit:false,x:0,y:0,parentLength:5,parentOrientation:'x'},
+            {isHit:false,x:1,y:0,parentLength:5,parentOrientation:'x'},
+            {isHit:false,x:2,y:0,parentLength:5,parentOrientation:'x'},
+            {isHit:false,x:3,y:0,parentLength:5,parentOrientation:'x'},
+            {isHit:false,x:4,y:0,parentLength:5,parentOrientation:'x'}
+        ]);
     });
 
     test('Hits for Carrier at position 0,0 with x-orientation', () => {
@@ -140,6 +146,43 @@ let gameboard;
         .toThrow('Duplicate attack on coordinates');
     });
 
+    test('Whole ship sunk check', () => {
+        gameboard.addShip('Carrier',{x:0,y:0},'x','A');
+        gameboard.addShip('Destroyer',{x:6,y:6},'y','B');
+        expect(gameboard.gridB[6][6].status)
+        .toEqual('occupied');
+        gameboard.attack({x:6,y:7},'B');
+        expect(gameboard.gridB[6][7].status)
+        .toEqual('hit');
+        gameboard.attack({x:6,y:6},'B');
+        expect(gameboard.gridA[6][6].status)
+        .toEqual('clear');
+        expect(gameboard.gridB[6][7].status)
+        .toEqual('sunk');
+        expect(() => gameboard.fleetB[0].isSunk().toEqual(true));
+        expect(() => gameboard.fleetA[0].isSunk().toEqual(false));
+        expect(gameboard.gridA[1][0].status)
+        .toEqual('occupied');
+        gameboard.attack({x:0,y:0},'A');
+        gameboard.attack({x:1,y:0},'A');
+        gameboard.attack({x:2,y:0},'A');
+        expect(gameboard.gridA[1][0].status)
+        .toEqual('hit');
+        gameboard.attack({x:3,y:0},'A');
+        gameboard.attack({x:4,y:0},'A');
+        expect(() => gameboard.fleetA[0].isSunk().toEqual(true));
+        expect(gameboard.gridA[1][0].status)
+        .toEqual('sunk');
+        expect(gameboard.gridA[1][1].status)
+        .toEqual('clear');
+        expect(gameboard.gridB[1][0].status)
+        .toEqual('clear');
+        
+        
+        gameboard.addShip('Submarine',{x:6,y:6},'x','A');
+        expect(() => gameboard.fleetA[1].isSunk().toEqual(false));
+    });
+
     test('Victory check', () => {
         gameboard.addShip('Carrier',{x:0,y:0},'x','A');
         gameboard.addShip('Destroyer',{x:6,y:6},'y','B');
@@ -219,6 +262,7 @@ let gameboard;
         .toEqual('miss');
 
     });
+    
 
   });
 
