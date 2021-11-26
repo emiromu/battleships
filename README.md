@@ -1,3 +1,5 @@
 # battleships
 
-Simple battleships game made using TDD
+Simple battleships game developped using TDD
+
+Live version: https://emiromu.github.io/battleships/
